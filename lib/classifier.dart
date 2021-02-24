@@ -15,7 +15,8 @@ class Classifier {
   }
 
   void _loadModel() async {
-    _interpreter = await Interpreter.fromAsset('us_products_V1_1.tflite');
+    // _interpreter = await Interpreter.fromAsset('us_products_V1_1.tflite');
+    _interpreter = await Interpreter.fromAsset('malaria.tflite');
 
     var inputShape = _interpreter.getInputTensor(0).shape;
     var outputShape = _interpreter.getOutputTensor(0).shape;
@@ -25,7 +26,9 @@ class Classifier {
   }
 
   void _loadLabel() async {
-    final labelData = await rootBundle.loadString('assets/us_products_V1_1.txt');
+    final labelData =
+        // await rootBundle.loadString('assets/us_products_V1_1.txt');
+        await rootBundle.loadString('assets/malaria_labels.txt');
     final labelList = labelData.split('\n');
     _labelList = labelList;
     print(labelData);
@@ -40,31 +43,69 @@ class Classifier {
     return originImage;
   }
 
-  Future<List<dynamic>> runModel(img.Image loadImage) async {
-    var modelImage = img.copyResize(loadImage, width: 224, height: 224);
-    var modelInput = imageToByteListUint8(modelImage, 224);
+  Future<dynamic> runModel(img.Image loadImage) async {
+    // var modelImage = img.copyResize(loadImage, width: 224, height: 224);
+    var modelImage = img.copyResize(loadImage, width: 130, height: 130);
+    // var modelInput = imageToByteListUint8(modelImage, 224);
+    var modelInput = imageToByteListFloat32(modelImage, 130, 117.0, 255.0);
     print("Run Model");
 
     //[1, 100000]
-    var outputsForPrediction = [List.generate(100000, (index) => 0.0)];
-    print(outputsForPrediction);
-    print(modelInput.buffer.lengthInBytes);
+    // var outputsForPrediction = [List.generate(100000, (index) => 0.0)];
+    var outputsForPrediction = [List.generate(1, (index) => 0.0)];
+    print("Before $outputsForPrediction");
     _interpreter.run(modelInput.buffer, outputsForPrediction);
+    print("After ${outputsForPrediction[0][0]}");
+    // Map<int, double> map = outputsForPrediction[0].asMap();
+    // var sortedKeys = map.keys.toList()
+    //   ..sort((k1, k2) => map[k2].compareTo(map[k1]));
+    double prediction = outputsForPrediction[0][0];
+    print("$prediction");
+    // List<dynamic> result = [];
+    if(prediction > 0)
+      return "Uninfected";
+    else
+      return "Infected";
+    // for (var i = 0; i < 3; i++) {
+    //   result.add({
+    //     'label': _labelList[sortedKeys[i]],
+    //     'value': map[sortedKeys[i]],
+    //   });
+    // }
+    // print("Result $result");
+    // return result;
+  }
 
-    Map<int, double> map = outputsForPrediction[0].asMap();
-    var sortedKeys = map.keys.toList()
-      ..sort((k1, k2) => map[k2].compareTo(map[k1]));
+  Uint8List imageToByteListUint8(img.Image image, int inputSize) {
+    var convertedBytes = Uint8List(1 * inputSize * inputSize * 3);
+    var buffer = Uint8List.view(convertedBytes.buffer);
 
-    List<dynamic> result = [];
-
-    for (var i = 0; i < 10; i++) {
-      result.add({
-        'label': _labelList[sortedKeys[i]],
-        'value': map[sortedKeys[i]],
-      });
+    int pixelIndex = 0;
+    for (var i = 0; i < inputSize; i++) {
+      for (var j = 0; j < inputSize; j++) {
+        var pixel = image.getPixel(i, j);
+        buffer[pixelIndex++] = img.getRed(pixel);
+        buffer[pixelIndex++] = img.getGreen(pixel);
+        buffer[pixelIndex++] = img.getBlue(pixel);
+      }
     }
-    print("Result $result");
-    return result;
+    return convertedBytes.buffer.asUint8List();
+  }
+
+  Uint8List imageToByteListFloat32(
+      img.Image image, int inputSize, double mean, double std) {
+    var convertedBytes = Float32List(1 * inputSize * inputSize * 3);
+    var buffer = Float32List.view(convertedBytes.buffer);
+    int pixelIndex = 0;
+    for (var i = 0; i < inputSize; i++) {
+      for (var j = 0; j < inputSize; j++) {
+        var pixel = image.getPixel(j, i);
+        buffer[pixelIndex++] = (img.getRed(pixel) - mean) / std;
+        buffer[pixelIndex++] = (img.getGreen(pixel) - mean) / std;
+        buffer[pixelIndex++] = (img.getBlue(pixel) - mean) / std;
+      }
+    }
+    return convertedBytes.buffer.asUint8List();
   }
 
   // Float32List imageToByteListUint8(img.Image image, int inputSize) {
@@ -82,20 +123,4 @@ class Classifier {
   //   }
   //   return convertedBytes.buffer.asFloat32List();
   // }
-
-  Uint8List imageToByteListUint8(img.Image image, int inputSize) {
-    var convertedBytes = Uint8List(1 * inputSize * inputSize * 3);
-    var buffer = Uint8List.view(convertedBytes.buffer);
-
-    int pixelIndex = 0;
-    for (var i = 0; i < inputSize; i++) {
-      for (var j = 0; j < inputSize; j++) {
-        var pixel = image.getPixel(i, j);
-        buffer[pixelIndex++] = img.getRed(pixel);
-        buffer[pixelIndex++] = img.getGreen(pixel);
-        buffer[pixelIndex++] = img.getBlue(pixel);
-      }
-    }
-    return convertedBytes.buffer.asUint8List();
-  }
 }
