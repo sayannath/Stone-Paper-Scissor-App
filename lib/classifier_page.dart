@@ -46,7 +46,7 @@ class _ClassifierPageState extends State<ClassifierPage> {
         backgroundColor: Colors.transparent,
         elevation: 0.0,
         title: Text(
-          'ASL Detection using TF Lite',
+          'Rocker Paper Scissor TF Lite',
           style: TextStyle(
             color: Colors.black,
           ),
@@ -91,21 +91,21 @@ class _ClassifierPageState extends State<ClassifierPage> {
 
   void _runModel(context) async {
     // try {
-      await _initializeControllerFuture;
-      final path = join(
-        (await getTemporaryDirectory()).path,
-        '${DateTime.now()}.png',
-      );
+    await _initializeControllerFuture;
+    final path = join(
+      (await getTemporaryDirectory()).path,
+      '${DateTime.now()}.png',
+    );
 
-      await _controller.takePicture(path);
+    await _controller.takePicture(path);
 
-      var loadImage = await _classifier.loadImage(path);
-      var loadResult = await _classifier.runModel(loadImage);
+    var loadImage = await _classifier.loadImage(path);
+    var loadResult = await _classifier.runModel(loadImage);
 
-      _showModalBottomSheet(context, loadImage, loadResult);
+    _showModalBottomSheet(context, loadImage, loadResult);
     // } catch (e) {
     //   print(e);
-      print("YO");
+    print("YO");
     // }
   }
 
@@ -138,28 +138,28 @@ class _ClassifierPageState extends State<ClassifierPage> {
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Column(
                           children: [
-                            // Row(
-                            //   children: [
-                            //     Text(
-                            //       '${index + 1}. ',
-                            //       style: TextStyle(
-                            //         fontWeight: FontWeight.bold,
-                            //         fontSize: 20,
-                            //       ),
-                            //     ),
-                            //     Flexible(
-                            //       child: Text(
-                            //         loadResult[index]['label'],
-                            //         style: TextStyle(
-                            //           fontWeight: FontWeight.bold,
-                            //           fontSize: 15,
-                            //         ),
-                            //       ),
-                            //     ),
-                            //   ],
-                            // ),
+                            Row(
+                              children: [
+                                Text(
+                                  '${index + 1}. ',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                                Flexible(
+                                  child: Text(
+                                    loadResult[index]['label'],
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                             Text(
-                              loadResult.toString(),
+                              loadResult[index]['value'].toString(),
                               style: TextStyle(
                                 color: Colors.orange,
                                 fontWeight: FontWeight.bold,
