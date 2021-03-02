@@ -6,3 +6,9 @@
 ```
 float32 to uint8
 ```
+
+## Screenshots
+
+<img src="Screenshots/Rock.jpeg">
+<img src="Screenshots/Paper.jpeg">
+<img src="Screenshots/Scissor.jpeg">
