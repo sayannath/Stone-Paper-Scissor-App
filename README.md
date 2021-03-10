@@ -10,9 +10,9 @@ float32 to uint8
 
 ## Screenshots
 
-<img src="Screenshots/Rock.jpeg">
-<img src="Screenshots/Paper.jpeg">
-<img src="Screenshots/Scissor.jpeg">
+<img height=400 width=200 src="Screenshots/Rock.jpeg">
+<img height=400 width=200 src="Screenshots/Paper.jpeg">
+<img height=400 width=200 src="Screenshots/Scissor.jpeg">
 
 ## Pull Request
 
