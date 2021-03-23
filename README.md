@@ -1,9 +1,10 @@
 # Stone-Paper-Scissor-App
 
-### Implemented TF-Lite in Flutter App
+<img src="Screenshots/git_dashes.png">
+
+## Implemented TF-Lite in Flutter App
 
 > Used Post-Training Qunatisation to make my model optmise and work smooth in my app
-
 ```
 float32 to uint8
 ```
